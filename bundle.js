@@ -52,7 +52,7 @@ const render = data => {
     .attr('fill', 'black');
 }
 
-d3.csv('data7-12_2020.csv').then(data =>{
+d3.csv('../data7-12_2020/CN7-12_2020.csv').then(data =>{
     data.forEach(d => {
         d.day = +d.day;
         d.month = +d.month;
