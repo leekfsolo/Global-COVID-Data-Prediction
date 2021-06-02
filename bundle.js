@@ -1,1 +1,1 @@
-import * as d3 from 'd3';
+import { select } from './d3v6'
