@@ -30,8 +30,26 @@ const formatDate = (date) => {
 }
 
 const render = data => {
-    const xScale = d3.scaleLinear();
-    const yScale = d3.scalePoint();
+    const xValue = d => d.cases;
+    const xAxisLabel = "Days";
+    const yValue = d => d.country;
+    const yAxisLabel = "Cases";
+    const radius = 8;
+    const xScale = d3.scaleLinear()
+                    .domain(d3.extent(data, xValue))
+                    .range([0, innerWidth]);
+    const yScale = d3.scalePoint()
+                    .domain(data.map(yValue))
+                    .range([0, innerHeight]);
+    const g = svg.append('g');
+
+    g.selectAll('circle').data(data)
+    .enter()
+    .append('circle')
+    .attr('cx', d => (xScale(xValue(d))))
+    .attr('cy', d => (yScale(yValue(d))))
+    .attr('r', radius)
+    .attr('fill', 'black');
 }
 
 d3.csv('dataJuly-December.csv').then(data =>{
@@ -43,20 +61,8 @@ d3.csv('dataJuly-December.csv').then(data =>{
         d.death = +d.death;
         d['Cumulative_number_for_14_days_of_COVID-19_cases_per_100000'] 
         = +d['Cumulative_number_for_14_days_of_COVID-19_cases_per_100000'];
-
+        d.dateRep = new Date(formatDate(d.dateRep));
     })
     
-// Cumulative_number_for_14_days_of_COVID-19_cases_per_100000: "3.86943221"
-// cases: "71"
-// continentExp: "Asia"
-// countriesAndTerritories: "Afghanistan"
-// countryterritoryCode: "AFG"
-// dateRep: "31/07/2020"
-// day: "31"
-// deaths: "0"
-// geoId: "AF"
-// month: "7"
-// popData2019: "38041757"
-// year: "2020"
     render(data);
 })
