@@ -30,16 +30,16 @@ const formatDate = (date) => {
 }
 
 const render = data => {
-    const xValue = d => d.cases;
+    const xValue = d => d.day;
     const xAxisLabel = "Days";
-    const yValue = d => d.country;
+    const yValue = d => d.deaths;
     const yAxisLabel = "Cases";
     const radius = 8;
     const xScale = d3.scaleLinear()
-                    .domain(d3.extent(data, xValue))
+                    .domain(data.map(xValue))
                     .range([0, innerWidth]);
     const yScale = d3.scalePoint()
-                    .domain(data.map(yValue))
+                    .domain(d3.extent(data, yValue))
                     .range([0, innerHeight]);
     const g = svg.append('g');
 
