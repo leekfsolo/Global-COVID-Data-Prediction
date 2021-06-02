@@ -3,3 +3,33 @@ body {
     padding: 0;
     overflow: hidden;
 }
+
+circle {
+    fill: steelblue;
+    opacity: 0.7;
+}
+
+circle:hover {
+    fill: tomato;
+    opacity: 1;
+}
+
+.axisText {
+    font-size: 3em;
+    font-family: sans-serif;
+    fill: #8E8883;
+}
+
+.tick line {
+    color: #E5E2E0;
+}
+
+.tick text {
+    font-size: 1.5em;
+    fill: #635F5D;
+}
+
+.title-label {
+    font-size: 3em;
+    fill: #7C715E;
+}
