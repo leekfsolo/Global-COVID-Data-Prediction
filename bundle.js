@@ -1,101 +1,92 @@
-    const svg = d3.select('svg')
+const svg = d3.select('svg')
 
-    svg
-        .attr('width', 1200)
-        .attr('height', 700);
+const width = document.body.clientWidth;
+const height = document.body.clientHeight;
+svg
+    .attr('width', width)
+    .attr('height', height);
+const marginLeftGraph = { top: 70, right: width/2+50, bottom: 100, left: 100 };
+const innerWidth = width - marginLeftGraph.left - marginLeftGraph.right;
+const innerHeight = height - marginLeftGraph.top - marginLeftGraph.bottom;
 
-    const width = +svg.attr('width');
-    const height = +svg.attr('height');
-    const margin = { top: 100, right: 20, bottom: 100, left: 300 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-    const formatDate = (date) => {
-        let day = "",
-            month = "",
-            year = "",
-            dashes = 0;
-        for (let i = 0; i < date.length; i++) {
-            if (dashes === 0) {
-                if (date[i] === '/') dashes++;
-                else day += date[i];
-            }
-            else if (dashes === 1) {
-                if (date[i] === '/') dashes++;
-                else month += date[i];
-            }
-            else year += date[i];
-        }
-        const result = month + '/' + day + '/' + year;
-        return result;
-    }
+const render = data => {
+    const xValue = d => d.date;
+    const xAxisLabel = "Date";
+    const yValue = d => d.new_cases;
+    const yAxisLabel = "New cases";
+    const radius = 5;
+    const title = `${yAxisLabel} vs ${xAxisLabel} of China`;
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(data, xValue))
+        .range([0, innerWidth])
+        .nice();
+    const yScale = d3.scaleLinear()
+        .domain(d3.extent(data, yValue))
+        .range([innerHeight, 0])
+        .nice();
+    const g = svg.append('g')
+        .attr('transform', `translate(${marginLeftGraph.left},${marginLeftGraph.bottom})`);
+    const xAxis = d3.axisBottom(xScale)
+        .tickSize(-innerHeight)
+        .tickPadding(10);
+    const yAxis = d3.axisLeft(yScale)
+        .tickSize(-innerWidth)
+        .tickPadding(10);
+    const lineGenerator = d3.line()
+        .x(d => xScale(xValue(d)))
+        .y(d => yScale(yValue(d)))
+        .curve(d3.curveBasis);
+    const nested = d3.nest()
+                        .key(d => d.location)
+                        .entries(data);
+    console.log(nested)
+    g.selectAll('.line-path').data(nested)
+        .enter()
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('d', d => lineGenerator(d.values));
 
-    const render = data => {
-        const xValue = d => d.dateRep;
-        const xAxisLabel = "DateRep";
-        const yValue = d => d.cases;
-        const yAxisLabel = "Cases";
-        const radius = 5;
-        const title = `${yAxisLabel} vs ${xAxisLabel} of China`;
-        const xScale = d3.scaleTime()
-            .domain(d3.extent(data, xValue))
-            .range([0, innerWidth])
-            .nice();
-        const yScale = d3.scaleLinear()
-            .domain(d3.extent(data, yValue))
-            .range([innerHeight, 0])
-            .nice();
-        const g = svg.append('g')
-            .attr('transform', `translate(${margin.left},${margin.bottom})`);
-        const xAxis = d3.axisBottom(xScale)
-                        .tickSize(-innerHeight)
-                        .tickPadding(10);
-        const yAxis = d3.axisLeft(yScale)
-                        .tickSize(-innerWidth)
-                        .tickPadding(10);
-        g.selectAll('circle').data(data)
-            .enter()
-            .append('circle')
-            .attr('cx', d => (xScale(xValue(d))))
-            .attr('cy', d => (yScale(yValue(d))))
-            .attr('r', radius)
-            .attr('fill', 'black')
-            .append('title')
-            .text(d => d.cases);
-        const xAxisG = g.append('g').call(xAxis)
-                        .attr('transform', `translate(0, ${innerHeight})`);
-        const yAxisG = g.append('g').call(yAxis);
-        xAxisG.append('text')
-                .attr('class', 'axisText')
-                .attr('x', innerWidth/2)
-                .attr('y', 50)
-                .attr('text-anchor', 'middle')
-                .text(xAxisLabel);
-        yAxisG.append('text')
-                .attr('class', 'axisText')
-                .attr('x', -innerHeight/2)
-                .attr('y', -50)
-                .attr('transform', 'rotate(-90)')
-                .attr('text-anchor', 'middle')
-                .text(yAxisLabel);
-        const titleLabel = g.append('text')
-                            .text(title)
-                            .attr('x', innerWidth/2)
-                            .attr('y', -20)
-                            .attr('text-anchor', 'middle')
-                            .attr('class', 'title-label');
-    }
+    const xAxisG = g.append('g').call(xAxis)
+        .attr('transform', `translate(0, ${innerHeight})`);
+    const yAxisG = g.append('g').call(yAxis);
+    xAxisG.append('text')
+        .attr('class', 'axisText')
+        .attr('x', innerWidth / 2)
+        .attr('y', 50)
+        .attr('text-anchor', 'middle')
+        .text(xAxisLabel);
+    yAxisG.append('text')
+        .attr('class', 'axisText')
+        .attr('x', -innerHeight / 2)
+        .attr('y', -50)
+        .attr('transform', 'rotate(-90)')
+        .attr('text-anchor', 'middle')
+        .text(yAxisLabel);
+    // const titleLabel = g.append('text')
+    //     .text(title)
+    //     .attr('x', innerWidth / 2)
+    //     .attr('y', -20)
+    //     .attr('text-anchor', 'middle')
+    //     .attr('class', 'title-label');
+}
 
-    d3.csv('../data7-12_2020/AUS7-12_2020.csv').then(data => {
-        data.forEach(d => {
-            d.day = +d.day;
-            d.month = +d.month;
-            d.year = +d.year;
-            d.cases = +d.cases;
-            d.deaths = +d.deaths;
-            d['Cumulative_number_for_14_days_of_COVID-19_cases_per_100000']
-                = +d['Cumulative_number_for_14_days_of_COVID-19_cases_per_100000'];
-            d.dateRep = new Date(formatDate(d.dateRep));
-        })
-        console.log(data)
-        render(data);
+d3.csv('./dataset/data-7-12-2020/data-7-12-2020.csv').then(data => {
+    data.forEach(d => {
+        d.new_cases = +d.new_cases;
+        d.new_deaths = +d.new_deaths;
+        d.total_cases = +d.total_cases;
+        d.total_deaths = +d.total_deaths;
+        d.weekly_cases = +d.weekly_cases;
+        d.weekly_deaths = +d.weekly_deaths;
+        d.biweekly_cases = +d.biweekly_cases;
+        d.biweekly_deaths = +d.biweekly_deaths;
+        d.date = new Date(d.date);
     })
+    render(data);
+})
+
+
+const x = document.body.clientWidth;
+const y = document.body.clientHeight;
+console.log(x);
+console.log(y);
