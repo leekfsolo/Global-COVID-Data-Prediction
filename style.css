@@ -8,17 +8,6 @@ body {
     bottom: 0;
     overflow: hidden;
 }
-
-/* circle {
-    fill: steelblue;
-    opacity: 0.7;
-}
-
-circle:hover {
-    fill: tomato;
-    opacity: 1;
-} */
-
 .axisText {
     font-size: 3em;
     font-family: sans-serif;
@@ -30,7 +19,7 @@ circle:hover {
 }
 
 .tick text {
-    font-size: 1.5em;
+    font-size: 1.2rem;
     fill: #635F5D;
 }
 
@@ -41,7 +30,13 @@ circle:hover {
 
 .line-path {
     fill: none;
-    stroke: steelblue;
     stroke-width: 2;
     stroke-linejoin: round;
+    stroke-linecap: round;
+    mix-blend-mode: multiply;
+}
+
+circle .tick {
+    stroke: black;
+    opacity: 0.5;
 }
