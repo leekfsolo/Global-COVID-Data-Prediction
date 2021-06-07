@@ -4,7 +4,8 @@ const width = document.body.clientWidth;
 const height = document.body.clientHeight;
 svg
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height)
+    .style('overflow', 'visible');
 const marginLeftGraph = {
     top: 80,
     right: 250,
@@ -23,20 +24,66 @@ const colorLegend = (selection, props) => {
     } = props;
 
     const groups = selection.selectAll('g')
-                    .data(colorScale.domain());
+        .data(colorScale.domain());
     const groupsEnter = groups.enter()
-                            .append('g')
-                            .attr('class', 'tick');
+        .append('g')
+        .attr('class', 'tick');
     groupsEnter.merge(groups)
-                .attr('transform', (d, i) => `translate(0, ${i*spacing})`)
-                groups.exit().remove();
+        .attr('transform', (d, i) => `translate(0, ${i * spacing})`)
+    groups.exit().remove();
     groupsEnter.append('circle')
-                .attr('r', circleRadius)
-                .attr('fill', colorScale);
+        .attr('r', circleRadius)
+        .attr('fill', colorScale);
     groupsEnter.append('text')
-                .attr('dy', '0.32em')
-                .attr('x', textOffSet)
-                .text(d => d);
+        .attr('dy', '0.32em')
+        .attr('x', textOffSet)
+        .text(d => d);
+}
+
+const hover = (svg, path, data) => {
+    if ("ontouchstart" in document) svg
+        .style("-webkit-tap-highlight-color", "transparent")
+        .on("touchmove", moved)
+        .on("touchstart", entered)
+        .on("touchend", left)
+    else svg
+        .on("mousemove", moved)
+        .on("mouseenter", entered)
+        .on("mouseleave", left);
+
+    const dot = svg.append("g")
+        .attr("display", "none");
+
+    dot.append("circle")
+        .attr("r", 2.5);
+
+    dot.append("text")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", "middle")
+        .attr("y", -8);
+
+    function moved(event) {
+        event.preventDefault();
+        const pointer = d3.pointer(event, this);
+        // const xm = x.invert(pointer[0]);
+        // const ym = y.invert(pointer[1]);
+        // const i = d3.bisectCenter(data.date, xm);
+        // const s = d3.least(data.series, d => Math.abs(d.values[i] - ym));
+        // path.attr("stroke", d => d === s ? null : "#ddd").filter(d => d === s).raise();
+        // dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
+        // dot.select("text").text(s.name);
+    }
+
+    function entered() {
+        path.style("mix-blend-mode", null).attr("stroke", "#ddd");
+        dot.attr("display", null);
+    }
+
+    function left() {
+        path.style("mix-blend-mode", "multiply").attr("stroke", null);
+        dot.attr("display", "none");
+    }
 }
 
 const render = data => {
@@ -47,7 +94,6 @@ const render = data => {
     const yAxisLabel = "New cases";
     const yTextOffset = 100;
     const colorValue = d => d.location;
-    // const title = `${yAxisLabel} vs ${xAxisLabel} of China`;
     const xScale = d3.scaleTime()
         .domain(d3.extent(data, xValue))
         .range([0, innerWidth]);
@@ -85,28 +131,26 @@ const render = data => {
         .x(d => xScale(xValue(d)))
         .y(d => yScale(yValue(d)))
         .curve(d3.curveBasis);
-    const lastYValue = d => yValue(d.values[d.values.length-1]);
-    const nested = d3.nest()
-        .key(colorValue)
-        .entries(data)
-        .sort((a,b) => d3.descending(lastYValue(a), lastYValue(b)));
-    g.selectAll('.line-path').data(nested)
+    
+    const nested = d3.group(data, colorValue);
+    const path = g.selectAll('.line-path').data(nested)
         .enter()
         .append('path')
         .attr('class', 'line-path')
-        .attr('d', d => lineGenerator(d.values))
-        .attr('stroke', d => colorScale(d.key));
-    colorScale.domain(nested.map(d => d.key));
+        .attr('d', d => lineGenerator(d[1]))
+        .attr('stroke', d => colorScale(d[0]));
     svg.append('g').call(colorLegend, {
-        textOffSet: 40,
+        textOffSet: 30,
         circleRadius: 15,
         colorScale,
         spacing: 80
     })
-                .attr('transform', `translate(1280, 250)`)
+        .attr('transform', `translate(1280, 250)`)
+    
+    //svg.call(hover, path, data);
 }
 
-d3.csv('./continent_data.csv').then(data => {
+d3.csv('./continent_data2.csv').then(data => {
     data.forEach(d => {
         d.new_cases = +d.new_cases;
         d.new_deaths = +d.new_deaths;
