@@ -1,5 +1,4 @@
 date,location,new_cases,new_deaths,total_cases,total_deaths,weekly_cases,weekly_deaths,biweekly_cases,biweekly_deaths
-7/0/2020,Polar,13227,259,418128,10405,82349,1550,150599,3187 //this is not a data
 7/1/2020,Africa,13227,259,418128,10405,82349,1550,150599,3187
 7/2/2020,Africa,14193,238,432321,10643,84592,1574,156538,3224
 7/3/2020,Africa,15159,239,447480,10882,88174,1600,161871,3200
