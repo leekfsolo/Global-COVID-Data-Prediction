@@ -6,7 +6,7 @@ let data;
 
 const render = () => {
     const xValue = d => d.date;
-    const yValue = d => d.new_cases;
+    const yValue = d => d.new_deaths;
     const colorValue = d => d.location;
     const nested = d3.group(data, colorValue);
 
@@ -50,8 +50,7 @@ const render = () => {
         .attr('fill', 'none')
         .attr('d', d => lineGenerator(d[1]))
         .attr('stroke', d => colorScale(d[0]))
-        .attr('stroke-width', 3)
-        .attr('stroke-lineJoin', 'round');
+        .attr('stroke-width', 3);
 
     svg.append("text")
         .attr("text-anchor", "middle")
